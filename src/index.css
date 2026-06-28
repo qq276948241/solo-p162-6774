@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  line-height: 1.6;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #FAF6F0;
+  color: #3D2B1F;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-caramel text-white rounded-lg px-5 py-2.5 font-medium
+           hover:bg-caramel-600 active:animate-bounce-sm
+           transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply border border-caramel-200 text-caramel-600 rounded-lg px-4 py-2
+           hover:bg-caramel-50 transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm overflow-hidden
+           transition-all duration-300 ease-out;
+  }
+
+  .card-hover {
+    @apply hover:-translate-y-1.5 hover:shadow-lg;
+  }
+
+  .input-field {
+    @apply w-full border-b-2 border-caramel-100 bg-transparent py-2 px-1
+           focus:border-caramel focus:outline-none transition-colors
+           placeholder:text-stone-400;
+  }
+}
