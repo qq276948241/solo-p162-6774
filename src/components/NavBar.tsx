@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { ShoppingCart, Croissant, Home } from "lucide-react";
+import { ShoppingCart, Croissant, Home, Heart } from "lucide-react";
 import { useBakeryStore } from "@/store/useBakeryStore";
 
 export default function NavBar() {
   const cartCount = useBakeryStore((s) => s.getCartCount());
+  const wishlistCount = useBakeryStore((s) => s.getWishlistCount());
   const location = useLocation();
 
   const linkClass = (path: string) =>
@@ -30,6 +31,18 @@ export default function NavBar() {
             <Link to="/" className={linkClass("/")}>
               <Home className="w-4 h-4" />
               <span className="text-sm font-medium">首页</span>
+            </Link>
+
+            <Link to="/wishlist" className={linkClass("/wishlist")}>
+              <div className="relative">
+                <Heart className="w-4 h-4" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                    {wishlistCount > 99 ? "99+" : wishlistCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-sm font-medium">心愿单</span>
             </Link>
 
             <Link to="/cart" className={linkClass("/cart")}>

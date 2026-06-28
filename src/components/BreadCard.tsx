@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Heart } from "lucide-react";
 import type { BreadItem } from "@/types";
 import { useBakeryStore } from "@/store/useBakeryStore";
 
@@ -8,8 +8,11 @@ interface BreadCardProps {
 }
 
 export default function BreadCard({ bread }: BreadCardProps) {
-  const { addToCart, getRemainingStock } = useBakeryStore();
+  const { addToCart, getRemainingStock, toggleWishlist, isWishlisted } =
+    useBakeryStore();
   const [bouncing, setBouncing] = useState(false);
+  const [heartBouncing, setHeartBouncing] = useState(false);
+  const wishlisted = isWishlisted(bread.id);
 
   const remaining = getRemainingStock(bread.id);
   const soldOut = remaining <= 0;
@@ -19,6 +22,14 @@ export default function BreadCard({ bread }: BreadCardProps) {
     addToCart(bread.id);
     setBouncing(true);
     setTimeout(() => setBouncing(false), 300);
+  };
+
+  const handleHeart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    toggleWishlist(bread.id);
+    setHeartBouncing(true);
+    setTimeout(() => setHeartBouncing(false), 300);
   };
 
   return (
@@ -36,6 +47,24 @@ export default function BreadCard({ bread }: BreadCardProps) {
           }`}
           loading="lazy"
         />
+
+        <button
+          onClick={handleHeart}
+          onMouseEnter={(e) => e.stopPropagation()}
+          className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center
+            bg-white/80 backdrop-blur-sm shadow-sm transition-all duration-200
+            hover:bg-white hover:scale-110
+            ${heartBouncing ? "animate-bounce-sm" : ""}
+            ${wishlisted ? "text-red-500" : "text-stone-400 hover:text-red-400"}`}
+          aria-label={wishlisted ? "取消收藏" : "加入心愿单"}
+        >
+          <Heart
+            className={`w-4.5 h-4.5 transition-all duration-200 ${
+              wishlisted ? "fill-current" : ""
+            }`}
+          />
+        </button>
+
         {soldOut && (
           <div className="absolute inset-0 bg-stone-900/50 flex items-center justify-center">
             <span className="bg-white text-stone-700 px-4 py-1.5 rounded-full text-sm font-semibold tracking-wider">
