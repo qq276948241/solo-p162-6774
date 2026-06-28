@@ -48,22 +48,29 @@ export const useBakeryStore = create<BakeryState>()(
       wishlistItems: [],
 
       addToCart: (breadId) => {
-        const { cart } = get();
-        const remaining = get().getRemainingStock(breadId);
-        if (remaining <= 0) return;
+        // 改用函数式更新：批量操作时始终基于最新 state 计算，避免快照过期
+        set((state) => {
+          const bread = BREADS.find((b) => b.id === breadId);
+          if (!bread) return state;
 
-        const existing = cart.find((item) => item.breadId === breadId);
-        if (existing) {
-          set({
-            cart: cart.map((item) =>
-              item.breadId === breadId
-                ? { ...item, quantity: item.quantity + 1 }
-                : item
-            ),
-          });
-        } else {
-          set({ cart: [...cart, { breadId, quantity: 1 }] });
-        }
+          const inCart =
+            state.cart.find((item) => item.breadId === breadId)?.quantity ?? 0;
+          const remaining = bread.stock - inCart;
+          if (remaining <= 0) return state;
+
+          const existing = state.cart.find((item) => item.breadId === breadId);
+          if (existing) {
+            return {
+              cart: state.cart.map((item) =>
+                item.breadId === breadId
+                  ? { ...item, quantity: item.quantity + 1 }
+                  : item
+              ),
+            };
+          } else {
+            return { cart: [...state.cart, { breadId, quantity: 1 }] };
+          }
+        });
       },
 
       updateQuantity: (breadId, quantity) => {

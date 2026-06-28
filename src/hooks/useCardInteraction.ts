@@ -25,9 +25,8 @@ export function useCardInteraction({
 
   const addToCart = useBakeryStore((s) => s.addToCart);
   const toggleWishlist = useBakeryStore((s) => s.toggleWishlist);
-  const isWishlisted = useBakeryStore((s) => s.isWishlisted);
-
-  const wishlisted = isWishlisted(breadId);
+  // 直接订阅调用结果，而非函数引用 — 这样 store 更新后组件会自动 re-render
+  const wishlisted = useBakeryStore((s) => s.isWishlisted(breadId));
 
   const triggerBounce = useCallback((setter: (v: boolean) => void) => {
     setter(true);
@@ -35,7 +34,13 @@ export function useCardInteraction({
   }, []);
 
   const handleAddClick = useCallback(() => {
-    if (soldOut || remaining <= 0) return;
+    // 双重校验：先看外部传入的状态，再直接读一次 store 确保最新
+    // 彻底阻止售罄时的微弹动画
+    const latestRemaining = useBakeryStore
+      .getState()
+      .getRemainingStock(breadId);
+    if (soldOut || remaining <= 0 || latestRemaining <= 0) return;
+
     addToCart(breadId);
     triggerBounce(setAddBouncing);
   }, [breadId, soldOut, remaining, addToCart, triggerBounce]);

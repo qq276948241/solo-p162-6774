@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus, X, Heart } from "lucide-react";
 import type { BreadItem } from "@/types";
 import { useCardInteraction } from "@/hooks/useCardInteraction";
@@ -24,16 +25,48 @@ function CardImage({
   heartBouncing,
   wishlisted,
 }: CardImageProps) {
+  const [imgError, setImgError] = useState(false);
+
   return (
     <div className="relative aspect-square overflow-hidden bg-cream-200">
-      <img
-        src={bread.image}
-        alt={bread.name}
-        className={`w-full h-full object-cover transition-transform duration-500 ${
-          soldOut ? "" : "group-hover:scale-105"
-        }`}
-        loading="lazy"
-      />
+      {imgError ? (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-cream-200 text-caramel/70">
+          <svg
+            width="56"
+            height="56"
+            viewBox="0 0 56 56"
+            fill="none"
+            className="mb-2 opacity-60"
+          >
+            <ellipse cx="28" cy="36" rx="22" ry="10" fill="currentColor" />
+            <path
+              d="M10 30C10 20 18 14 28 14C38 14 46 20 46 30"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              fill="none"
+            />
+            <path
+              d="M18 24C18 20 22 18 28 18C34 18 38 20 38 24"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+            />
+          </svg>
+          <span className="text-xs font-medium">{bread.name}</span>
+        </div>
+      ) : (
+        <img
+          src={bread.image}
+          alt={bread.name}
+          onError={() => setImgError(true)}
+          className={`w-full h-full object-cover transition-transform duration-500 ${
+            soldOut ? "" : "group-hover:scale-105"
+          }`}
+          loading="lazy"
+        />
+      )}
 
       <button
         onClick={onHeartClick}
@@ -134,8 +167,8 @@ function CardFooter({ price, soldOut, onAddClick, addBouncing }: CardFooterProps
 }
 
 export default function BreadCard({ bread }: BreadCardProps) {
-  const getRemainingStock = useBakeryStore((s) => s.getRemainingStock);
-  const remaining = getRemainingStock(bread.id);
+  // 直接订阅调用结果，而非函数引用 — store 更新后自动触发 re-render
+  const remaining = useBakeryStore((s) => s.getRemainingStock(bread.id));
   const soldOut = remaining <= 0;
 
   const {
