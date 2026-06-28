@@ -33,6 +33,10 @@ interface BakeryState {
   getRemainingStock: (breadId: string) => number;
 }
 
+function toggleItemById<T extends string>(items: T[], id: T): T[] {
+  return items.includes(id) ? items.filter((i) => i !== id) : [...items, id];
+}
+
 export const useBakeryStore = create<BakeryState>()(
   persist(
     (set, get) => ({
@@ -127,12 +131,7 @@ export const useBakeryStore = create<BakeryState>()(
       },
 
       toggleWishlist: (breadId) => {
-        const { wishlistItems } = get();
-        if (wishlistItems.includes(breadId)) {
-          set({ wishlistItems: wishlistItems.filter((id) => id !== breadId) });
-        } else {
-          set({ wishlistItems: [...wishlistItems, breadId] });
-        }
+        set({ wishlistItems: toggleItemById(get().wishlistItems, breadId) });
       },
 
       isWishlisted: (breadId) => {
